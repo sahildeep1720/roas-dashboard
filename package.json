@@ -1,0 +1,7 @@
+{
+  "name": "roas-dashboard",
+  "version": "1.0.0",
+  "description": "Meta Ads + Cashfree ROAS Dashboard",
+  "engines": { "node": "22.x" },
+  "dependencies": {}
+}
