@@ -28,11 +28,19 @@ export default async function handler(req, res) {
     'Content-Type': 'application/json'
   };
 
+  function getPlan(amt) {
+    if (amt <= 99)  return 'daily';
+    if (amt <= 499) return 'monthly';
+    return 'yearly';
+  }
+
   try {
     let totalRevenue = 0;
     let totalOrders  = 0;
     const dailyRevenue = {};
     const dailyOrders  = {};
+    const planCounts  = { daily:0, monthly:0, yearly:0 };
+    const planRevenue = { daily:0, monthly:0, yearly:0 };
     let cursor = null;
 
     do {
@@ -68,6 +76,9 @@ export default async function handler(req, res) {
           if (amt > 0) {
             totalRevenue += amt;
             totalOrders++;
+            const plan = getPlan(amt);
+            planCounts[plan]++;
+            planRevenue[plan] += amt;
             const day = (ev.event_time || '').split('T')[0];
             if (day) {
               dailyRevenue[day] = (dailyRevenue[day] || 0) + amt;
@@ -81,7 +92,7 @@ export default async function handler(req, res) {
 
     } while (cursor);
 
-    return res.status(200).json({ totalRevenue, totalOrders, dailyRevenue, dailyOrders, since, until });
+    return res.status(200).json({ totalRevenue, totalOrders, dailyRevenue, dailyOrders, planCounts, planRevenue, since, until });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

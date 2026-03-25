@@ -1,7 +1,7 @@
 const META_TOKEN   = process.env.META_TOKEN;
 const META_ACCOUNT = process.env.META_ACCOUNT;
 
-const VALID = ['gender', 'age', 'country', 'region', 'device_platform', 'publisher_platform'];
+const VALID = ['gender', 'age', 'country', 'region', 'device_platform', 'publisher_platform', 'impression_device'];
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

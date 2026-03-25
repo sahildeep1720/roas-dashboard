@@ -112,6 +112,11 @@
   .metric-card.cpm::before{background:#38bdf8}
   .metric-card.cpc::before{background:#fb7185}
   .metric-card.orders::before{background:#34d399}
+  .metric-card.cost-signup::before{background:#ec4899}
+  .metric-card.plan-daily::before{background:#38bdf8}
+  .metric-card.plan-monthly::before{background:#a78bfa}
+  .metric-card.plan-yearly::before{background:#f59e0b}
+  .metric-card.plan-total::before{background:#00875a}
   .metric-label{font-size:11px;color:var(--text3);letter-spacing:0.5px;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px}
   .metric-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:var(--text);line-height:1}
   .metric-sub{font-size:11px;color:var(--text3);margin-top:6px}
@@ -154,6 +159,7 @@
   .demo-loading{font-size:12px;color:var(--text3);text-align:center;padding:40px;font-family:'DM Mono',monospace}
   .demo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
   .demo-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+  .demo-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
   .demo-chart-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
   .demo-chart-title{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
   .demo-chart-title span{color:var(--text2);font-size:11px;text-transform:none;letter-spacing:0}
@@ -263,6 +269,7 @@
     .demo-card{padding:14px}
     .demo-grid{grid-template-columns:1fr;gap:12px}
     .demo-grid-4{grid-template-columns:repeat(2,1fr);gap:10px}
+    .demo-grid-3{grid-template-columns:1fr;gap:12px}
 
     /* Bottom row */
     .bottom-row{grid-template-columns:1fr;gap:12px}
@@ -373,6 +380,16 @@
         <div class="metric-card cpm"><div class="metric-label">CPM</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
         <div class="metric-card cpc"><div class="metric-label">CPC</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
         <div class="metric-card orders"><div class="metric-label">Orders</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
+        <div class="metric-card cost-signup"><div class="metric-label">Cost/Signup</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
+      </div>
+
+      <!-- PLANS SOLD -->
+      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Plans Sold · <span id="plansPeriodLabel">—</span></div>
+      <div class="metrics-grid" id="plansGrid" style="margin-bottom:20px">
+        <div class="metric-card plan-daily"><div class="metric-label">Daily Plans</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
+        <div class="metric-card plan-monthly"><div class="metric-label">Monthly Plans</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
+        <div class="metric-card plan-yearly"><div class="metric-label">Yearly Plans</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
+        <div class="metric-card plan-total"><div class="metric-label">All-Time Plans</div><div style="height:30px;width:80px;background:var(--bg3);border-radius:4px;animation:shimmer 1.5s infinite"></div></div>
       </div>
 
       <!-- SPEND vs REVENUE + ROAS TREND -->
@@ -485,8 +502,8 @@
           </div>
         </div>
 
-        <!-- Row 2: Device + Platform + Region -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+        <!-- Row 2: Device + Platform + iOS/Android -->
+        <div class="demo-grid-3">
           <div class="demo-chart-wrap">
             <div class="demo-chart-title">Device <span id="deviceTotal"></span></div>
             <div style="position:relative;height:180px"><canvas id="demoDevice"></canvas></div>
@@ -496,9 +513,15 @@
             <div style="position:relative;height:180px"><canvas id="demoPlatform"></canvas></div>
           </div>
           <div class="demo-chart-wrap">
-            <div class="demo-chart-title">Country <span id="countryTotal"></span></div>
-            <div style="position:relative;height:180px"><canvas id="demoCountry"></canvas></div>
+            <div class="demo-chart-title">iOS vs Android <span id="iosAndroidTotal"></span></div>
+            <div style="position:relative;height:180px"><canvas id="demoIosAndroid"></canvas></div>
           </div>
+        </div>
+
+        <!-- Row 3: Country (full width) -->
+        <div class="demo-chart-wrap" style="margin-bottom:14px">
+          <div class="demo-chart-title">Country <span id="countryTotal"></span></div>
+          <div style="position:relative;height:220px"><canvas id="demoCountry"></canvas></div>
         </div>
 
         <!-- Row 3: Region/State (full width) -->
@@ -558,7 +581,7 @@ let currentLevel   = 'campaign';
 let customFrom     = null, customTo = null;
 let currentCampaignId = null, currentAdsetId = null;
 let currentDemoMetric = 'spend';
-let dashData = { spend:0,impressions:0,clicks:0,cpm:0,cpc:0,campaigns:[],revenue:0,orders:0,daily:{},roas:0,cac:0,convRate:0 };
+let dashData = { spend:0,impressions:0,clicks:0,cpm:0,cpc:0,campaigns:[],revenue:0,orders:0,daily:{},roas:0,cac:0,convRate:0,costSignup:0,planCounts:{daily:0,monthly:0,yearly:0} };
 let spendRevenueChart = null, roasChart = null;
 const demoInst = {};   // Chart.js instances for demo charts
 const demoCache = {};  // Cached demographics API responses
@@ -753,6 +776,7 @@ async function loadAll() {
 
   loadDemographics();    // non-blocking
   loadBreakdownTables(); // non-blocking
+  loadAllTimePlans();    // non-blocking
 }
 
 // ─── Build & Render ───────────────────────────────────────────────────
@@ -784,10 +808,12 @@ function buildAndRender(metaRows, cf, level = 'campaign') {
   const roas = totalSpend>0 ? totalRev/totalSpend : 0;
   const cac  = totalOrders>0 ? totalSpend/totalOrders : 0;
   const convRate = totalClicks>0 ? (totalOrders/totalClicks)*100 : 0;
+  const costSignup = totalOrders>0 ? totalSpend/totalOrders : 0;
+  const planCounts = cf.planCounts || { daily:0, monthly:0, yearly:0 };
   const campaigns = Object.values(entityMap).sort((a,b)=>b.spend-a.spend);
   const daily = Object.entries(dailyMap).sort((a,b)=>a[0].localeCompare(b[0]));
 
-  dashData = { spend:totalSpend, impressions:totalImpr, clicks:totalClicks, cpm, cpc, roas, cac, convRate, revenue:totalRev, orders:totalOrders, campaigns, daily };
+  dashData = { spend:totalSpend, impressions:totalImpr, clicks:totalClicks, cpm, cpc, roas, cac, convRate, costSignup, planCounts, revenue:totalRev, orders:totalOrders, campaigns, daily };
 
   renderMetrics(dashData);
   renderCharts(dashData);
@@ -808,7 +834,48 @@ function renderMetrics(d) {
     <div class="metric-card conv"><div class="metric-label">Conv. Rate</div><div class="metric-value">${d.convRate.toFixed(2)}%</div><div class="metric-sub" style="color:var(--text3)">${d.clicks.toLocaleString()} clicks</div></div>
     <div class="metric-card cpm"><div class="metric-label">CPM</div><div class="metric-value">${fmtINR(d.cpm)}</div><div class="metric-sub" style="color:var(--text3)">${(d.impressions/1000).toFixed(1)}K impr.</div></div>
     <div class="metric-card cpc"><div class="metric-label">CPC</div><div class="metric-value">${fmtINR(d.cpc)}</div><div class="metric-sub" style="color:var(--text3)">cost per click</div></div>
-    <div class="metric-card orders"><div class="metric-label">Orders</div><div class="metric-value">${d.orders.toLocaleString()}</div><div class="metric-sub" style="color:var(--text3)">paid · Cashfree</div></div>`;
+    <div class="metric-card orders"><div class="metric-label">Orders</div><div class="metric-value">${d.orders.toLocaleString()}</div><div class="metric-sub" style="color:var(--text3)">paid · Cashfree</div></div>
+    <div class="metric-card cost-signup"><div class="metric-label">Cost / Signup</div><div class="metric-value">${fmtINR(d.costSignup)}</div><div class="metric-sub" style="color:var(--text3)">per paid order</div></div>`;
+  renderPlansSection(d);
+}
+
+// ─── Plans section ────────────────────────────────────────────────────
+function renderPlansSection(d) {
+  const period = (customFrom && customTo) ? `${customFrom} → ${customTo}` : `${currentDays}d`;
+  document.getElementById('plansPeriodLabel').textContent = period;
+  const pc = d.planCounts || { daily:0, monthly:0, yearly:0 };
+  const total = pc.daily + pc.monthly + pc.yearly;
+  document.getElementById('plansGrid').innerHTML = `
+    <div class="metric-card plan-daily">
+      <div class="metric-label">Daily Plans</div>
+      <div class="metric-value">${pc.daily.toLocaleString()}</div>
+      <div class="metric-sub" style="color:var(--text3)">₹99 · in period</div>
+    </div>
+    <div class="metric-card plan-monthly">
+      <div class="metric-label">Monthly Plans</div>
+      <div class="metric-value">${pc.monthly.toLocaleString()}</div>
+      <div class="metric-sub" style="color:var(--text3)">₹499 · in period</div>
+    </div>
+    <div class="metric-card plan-yearly">
+      <div class="metric-label">Yearly Plans</div>
+      <div class="metric-value">${pc.yearly.toLocaleString()}</div>
+      <div class="metric-sub" style="color:var(--text3)">₹4999 · in period</div>
+    </div>
+    <div class="metric-card plan-total" id="allTimePlanCard">
+      <div class="metric-label">All-Time Plans</div>
+      <div class="metric-value" id="allTimePlanCount">—</div>
+      <div class="metric-sub" style="color:var(--text3)">total sold ever</div>
+    </div>`;
+}
+
+async function loadAllTimePlans() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const r = await fetch(`/api/cashfree?from=2020-01-01&to=${today}`);
+    const d = await r.json();
+    const el = document.getElementById('allTimePlanCount');
+    if (el && d.totalOrders !== undefined) el.textContent = d.totalOrders.toLocaleString();
+  } catch(e) {}
 }
 
 // ─── Charts ───────────────────────────────────────────────────────────
@@ -974,14 +1041,15 @@ function renderBreakdownTable(rows, level, tbodyId, countId) {
 const DEMO_COLORS = {
   gender: { female:'#ff6b8a', male:'#4d9ef5', unknown:'#555a66' },
   device_platform: { mobile_app:'#00e5a0', mobile_web:'#00b87d', desktop:'#1877f2', tablet:'#a78bfa' },
-  publisher_platform: { facebook:'#1877f2', instagram:'#e1306c', audience_network:'#ffa502', messenger:'#00b0ff' }
+  publisher_platform: { facebook:'#1877f2', instagram:'#e1306c', audience_network:'#ffa502', messenger:'#00b0ff' },
+  impression_device: { iphone:'#555a66', ipad:'#8e8e93', android_smartphone:'#3ddc84', android_tablet:'#9ee4a4', desktop:'#1877f2', unknown:'#aaaaaa' }
 };
 const PALETTE = ['#00e5a0','#1877f2','#ff6b35','#a78bfa','#ffa502','#38bdf8','#fb7185','#34d399','#f59e0b','#6366f1','#ec4899','#14b8a6'];
 
 async function loadDemographics() {
   document.getElementById('demoLoading').style.display = 'block';
   const dp = getDateParam(), fp = getFilterParam().slice(1); // remove leading &
-  const bds = ['gender','age','device_platform','publisher_platform','country','region'];
+  const bds = ['gender','age','device_platform','publisher_platform','country','region','impression_device'];
   try {
     const results = await Promise.all(bds.map(b => {
       const url = `/api/demographics?breakdown=${b}&${dp}${fp ? '&'+fp : ''}`;
@@ -1001,12 +1069,13 @@ function setDemoMetric(metric, el) {
 }
 
 function renderAllDemoCharts() {
-  makeDemoChart('demoGender',   'gender',             'gender',             'doughnut', false, 'genderTotal');
-  makeDemoChart('demoAge',      'age',                'age',                'bar',      false, 'ageTotal');
-  makeDemoChart('demoDevice',   'device_platform',    'device_platform',    'doughnut', false, 'deviceTotal');
-  makeDemoChart('demoPlatform', 'publisher_platform', 'publisher_platform', 'bar',      false, 'platformTotal');
-  makeDemoChart('demoCountry',  'country',            'country',            'bar',      true,  'countryTotal');
-  makeDemoChart('demoRegion',   'region',             'region',             'bar',      true,  'regionTotal');
+  makeDemoChart('demoGender',     'gender',             'gender',             'doughnut', false, 'genderTotal');
+  makeDemoChart('demoAge',        'age',                'age',                'bar',      false, 'ageTotal');
+  makeDemoChart('demoDevice',     'device_platform',    'device_platform',    'doughnut', false, 'deviceTotal');
+  makeDemoChart('demoPlatform',   'publisher_platform', 'publisher_platform', 'bar',      false, 'platformTotal');
+  makeDemoChart('demoIosAndroid', 'impression_device',  'impression_device',  'doughnut', false, 'iosAndroidTotal');
+  makeDemoChart('demoCountry',    'country',            'country',            'bar',      true,  'countryTotal');
+  makeDemoChart('demoRegion',     'region',             'region',             'bar',      true,  'regionTotal');
 }
 
 function makeDemoChart(canvasId, breakdown, labelKey, type, horizontal, totalElId) {
@@ -1093,8 +1162,10 @@ function buildContext() {
   const genderData = (demoCache.gender||[]).map(g=>`${g.gender}: ₹${parseFloat(g.spend||0).toFixed(0)} spend`).join(', ');
   const ageData = (demoCache.age||[]).sort((a,b)=>parseFloat(b.spend||0)-parseFloat(a.spend||0)).slice(0,4).map(g=>`${g.age}: ₹${parseFloat(g.spend||0).toFixed(0)}`).join(', ');
   const period = (customFrom&&customTo) ? `${customFrom} to ${customTo}` : `last ${currentDays} days`;
+  const pc = d.planCounts || {};
   return `You are a ROAS analyst. Data (${period}):
-Spend: ₹${d.spend.toFixed(0)} | Revenue: ₹${d.revenue.toFixed(0)} | ROAS: ${d.roas.toFixed(2)}x | Orders: ${d.orders} | CAC: ₹${d.cac.toFixed(0)} | CVR: ${d.convRate.toFixed(2)}% | CPM: ₹${d.cpm.toFixed(0)} | CPC: ₹${d.cpc.toFixed(0)}
+Spend: ₹${d.spend.toFixed(0)} | Revenue: ₹${d.revenue.toFixed(0)} | ROAS: ${d.roas.toFixed(2)}x | Orders: ${d.orders} | CAC/Cost-per-signup: ₹${d.costSignup.toFixed(0)} | CVR: ${d.convRate.toFixed(2)}% | CPM: ₹${d.cpm.toFixed(0)} | CPC: ₹${d.cpc.toFixed(0)}
+Plans sold: Daily(₹99)=${pc.daily||0}, Monthly(₹499)=${pc.monthly||0}, Yearly(₹4999)=${pc.yearly||0}
 Top entities: ${d.campaigns.slice(0,5).map(c=>`"${c.name}" ₹${c.spend.toFixed(0)}`).join('; ')}
 Gender: ${genderData||'loading'}
 Age: ${ageData||'loading'}
